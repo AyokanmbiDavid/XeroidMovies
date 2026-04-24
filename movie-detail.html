@@ -1,45 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xeroid - Details</title>
-    <script src="https://cdn.tailwindcss.com/3.4.1"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xeroid | Detail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+        body { font-family: 'Google Sans', sans-serif; background: #F8F9FF; }
+        .detail-sheet { background: #FFFFFF; border-radius: 48px 48px 0 0; margin-top: -60px; position: relative; z-index: 10; padding: 40px 24px; }
+        .data-pill { background: #F3F4F9; padding: 16px; border-radius: 24px; text-align: center; }
+    </style>
 </head>
-<body class="bg-[#f8fafc] text-gray-900 pb-32 min-h-screen relative overflow-x-hidden">
-
-    <div id="detail-bg" class="fixed inset-0 bg-cover bg-center opacity-10 blur-3xl -z-10 scale-125 transition-all duration-500"></div>
-    
-    <nav class="fixed top-0 left-0 w-full p-4 z-50 flex items-center justify-between glass-nav">
-        <a href="index.html" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/40 backdrop-blur-md border border-gray-200/50 text-gray-800 active:scale-90 shadow-sm">
-            <i class="fa-solid fa-arrow-left"></i>
-        </a>
-        <button id="detailSaveBtn" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/40 backdrop-blur-md border border-gray-200/50 text-gray-800 active:scale-90 shadow-sm">
-            <i class="fa-solid fa-heart"></i>
-        </button>
-    </nav>
-
-    <main id="movie-detail-container" class="mt-24 px-5 max-w-lg mx-auto">
-        <div class="animate-pulse-fast space-y-8">
-            <div class="w-full aspect-video bg-gray-200 rounded-[2.5rem]"></div>
-            <div class="h-10 bg-gray-200 rounded-full w-3/4 mx-auto"></div>
-            <div class="h-4 bg-gray-100 rounded-full w-1/2 mx-auto"></div>
-            <div class="grid grid-cols-3 gap-3">
-                <div class="h-20 bg-gray-100 rounded-3xl"></div>
-                <div class="h-20 bg-gray-100 rounded-3xl"></div>
-                <div class="h-20 bg-gray-100 rounded-3xl"></div>
-            </div>
+<body>
+    <div id="detail-target">
         </div>
-    </main>
 
-    <div id="toast" class="toast-hidden fixed top-24 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-5 py-2.5 rounded-full shadow-2xl backdrop-blur-md text-xs font-bold flex items-center gap-2 z-[120] transition-all duration-300">
-        <i id="toastIcon" class="fa-solid fa-circle-check text-green-400"></i>
-        <span id="toastMessage">Success</span>
-    </div>
+    <script>
+        const pid = new URLSearchParams(window.location.search).get('id');
+        async function load() {
+            const res = await fetch(`https://api.tvmaze.com/shows/${pid}`);
+            const s = await res.json();
+            
+            document.getElementById('detail-target').innerHTML = `
+                <div class="relative w-full h-[60vh]">
+                    <img src="${s.image?.original}" class="w-full h-full object-cover">
+                    <button onclick="history.back()" class="absolute top-6 left-6 w-12 h-12 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/30">
+                        <span class="material-symbols-rounded">arrow_back</span>
+                    </button>
+                </div>
+                
+                <div class="detail-sheet shadow-2xl">
+                    <div class="max-w-md mx-auto">
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            ${s.genres.map(g => `<span class="bg-[#D1E4FF] text-[#001D35] text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">${g}</span>`).join('')}
+                        </div>
+                        <h1 class="text-4xl font-bold text-[#1A1C1E] mb-2">${s.name}</h1>
+                        <p class="text-blue-600 font-bold mb-8">Premiere: ${s.premiered || 'TBA'}</p>
 
-    <script src="app.js"></script>
+                        <div class="grid grid-cols-3 gap-3 mb-10">
+                            <div class="data-pill">
+                                <span class="text-[10px] block font-bold text-slate-400 uppercase mb-1">Score</span>
+                                <span class="font-bold text-[#1A1C1E]">★ ${s.rating?.average || '??'}</span>
+                            </div>
+                            <div class="data-pill">
+                                <span class="text-[10px] block font-bold text-slate-400 uppercase mb-1">Status</span>
+                                <span class="font-bold text-[#1A1C1E] text-[11px]">${s.status}</span>
+                            </div>
+                            <div class="data-pill">
+                                <span class="text-[10px] block font-bold text-slate-400 uppercase mb-1">Length</span>
+                                <span class="font-bold text-[#1A1C1E]">${s.runtime || 'N/A'}m</span>
+                            </div>
+                        </div>
+
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Synopsis</h3>
+                        <p class="text-slate-600 leading-relaxed text-lg mb-10">
+                            ${s.summary ? s.summary.replace(/<[^>]*>/g, '') : 'Data unavailable.'}
+                        </p>
+                        
+                        <a href="${s.officialSite || '#'}" target="_blank" class="block w-full py-5 bg-[#0061A4] text-white text-center rounded-[24px] font-bold shadow-xl shadow-blue-200">
+                             Official Stream
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+        load();
+    </script>
 </body>
 </html>
